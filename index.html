@@ -1,269 +1,718 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <title>Portfolio Website</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entnomic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #090909;
+  --surface: #111111;
+  --border:  #222222;
+  --border2: #2e2e2e;
+  --text:    #f0f0f0;
+  --muted:   #888888;
+  --dim:     #555555;
+  --green:   #22c55e;
+  --sans:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+#cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  top: 0; left: 0;
+  transform: translate(-50%, -50%);
+}
+#cursor-h {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  top: 0; left: 0;
+  width: 100vw; height: 1px;
+  background: rgba(255,255,255,0.04);
+  transform: translateY(-50%);
+}
+#cursor-v {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  top: 0; left: 0;
+  width: 1px; height: 100vh;
+  background: rgba(255,255,255,0.04);
+  transform: translateX(-50%);
+}
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  animation: grid-drift 20s ease-in-out infinite alternate;
+}
+@keyframes grid-drift {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-32px, -32px); }
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.045;
+  animation: orb-float linear infinite;
+}
+.orb1 {
+  width: 700px; height: 700px;
+  background: #ffffff;
+  top: -200px; left: -200px;
+  animation-duration: 30s;
+  animation-name: orb-float-1;
+}
+.orb2 {
+  width: 500px; height: 500px;
+  background: #ffffff;
+  bottom: -100px; right: -100px;
+  animation-duration: 40s;
+  animation-name: orb-float-2;
+  opacity: 0.03;
+}
+@keyframes orb-float-1 {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(60px, 80px); }
+  66%  { transform: translate(-40px, 120px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes orb-float-2 {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(-80px, -60px); }
+  100% { transform: translate(0, 0); }
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+}
+nav.scrolled {
+  border-color: var(--border);
+  background: rgba(9,9,9,0.88);
+  backdrop-filter: blur(14px);
+}
+.nav-logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.nav-link {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-link:hover { color: var(--text); }
+.nav-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--green);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  padding: 5px 12px;
+  border-radius: 100px;
+}
+.badge-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.hero {
+  position: relative;
+  z-index: 2;
+  padding: 172px 40px 108px;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.hero-label {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.hero-heading {
+  font-size: clamp(52px, 7.5vw, 96px);
+  font-weight: 700;
+  line-height: 1.0;
+  letter-spacing: -0.04em;
+  margin-bottom: 28px;
+  color: var(--text);
+}
+.hero-heading .dim {
+  color: var(--dim);
+}
+.hero-sub {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 44px;
+}
+.hero-actions { display: flex; gap: 10px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  letter-spacing: -0.01em;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.btn-primary:hover { background: #d8d8d8; border-color: #d8d8d8; }
+.btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--border2);
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--dim); }
+
+.ticker {
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  padding: 15px 0;
+  background: var(--bg);
+}
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 34s linear infinite;
+}
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 24px;
+  font-size: 13px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ticker-item::after {
+  content: '';
+  width: 4px; height: 4px;
+  background: var(--dim);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.section {
+  position: relative;
+  z-index: 2;
+  padding: 88px 0;
+  border-bottom: 1px solid var(--border);
+}
+.section-label {
+  font-size: 28px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+}
+.about-copy {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.about-copy + .about-copy { margin-top: 16px; }
+.about-copy strong { color: var(--text); font-weight: 600; }
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 28px;
+}
+.tag {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 11px;
+  border-radius: 4px;
+}
+
+.exp-list { display: flex; flex-direction: column; }
+.exp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.exp-row:first-child { border-top: 1px solid var(--border); }
+.exp-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+.exp-type {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  text-align: right;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tool-card {
+  background: var(--bg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+.tool-card:hover { background: var(--surface); }
+.tool-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.tool-icon svg { width: 20px; height: 20px; opacity: 0.55; transition: opacity 0.15s; }
+.tool-card:hover .tool-icon svg { opacity: 1; }
+.tool-name { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+.tool-type { font-size: 11px; font-family: var(--mono); color: var(--dim); }
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.contact-heading {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.contact-sub { font-size: 14px; line-height: 1.7; color: var(--muted); }
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: var(--bg);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.contact-link:hover { background: var(--surface); }
+.contact-link-left { display: flex; align-items: center; gap: 14px; }
+.contact-link-icon {
+  width: 34px; height: 34px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.contact-link-icon svg { width: 14px; height: 14px; fill: var(--muted); }
+.contact-link-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.contact-link-handle { font-size: 12px; font-family: var(--mono); color: var(--dim); margin-top: 2px; }
+.contact-arrow { font-size: 15px; color: var(--dim); transition: transform 0.15s, color 0.15s; }
+.contact-link:hover .contact-arrow { transform: translateX(3px); color: var(--muted); }
+
+.footer-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-text { font-size: 12px; font-family: var(--mono); color: var(--dim); }
+
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 720px) {
+  nav { padding: 0 20px; }
+  .nav-right .nav-link { display: none; }
+  .hero { padding: 120px 20px 64px; }
+  .container { padding: 0 20px; }
+  .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+  .section { padding: 60px 0; }
+  .footer-inner { padding: 20px; flex-direction: column; gap: 8px; }
+}
+</style>
 </head>
 <body>
-    <header>
-        <a href="#" class="logo">Entnomic</a>
 
-        <nav>
-            <a href="#" class="active"> Home</a>
-        </nav>
-    </header>
-    <section class="home">
-        <div class="home-img">
-            <img src="main.jpg" alt="">
-        </div>
-        <div class="home-content">
-            <h1>Hi, I'm <span>Entnomic</span></h1>
-            <h3 class="typing-text">I'm a <span></span></h3>
-            <p>Accomplished programmer, UI/UX designer, and software engineer with extensive experience in cybersecurity. I've developed custom tools, mastered social engineering tactics (SET), implemented rainbow table attacks, built automation bots, and successfully tested system defenses—demonstrating a deep, practical understanding of both offensive and defensive security strategies.</p>
-        </div>
-    </section>
 
-    <div class="typing-container">
-        <span class="typing-text"></span>
+<div class="bg-canvas" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+</div>
+
+<svg id="cursor" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="12" y1="0" x2="12" y2="9"  stroke="white" stroke-width="1.2" opacity="0.7"/>
+  <line x1="12" y1="15" x2="12" y2="24" stroke="white" stroke-width="1.2" opacity="0.7"/>
+  <line x1="0"  y1="12" x2="9"  y2="12" stroke="white" stroke-width="1.2" opacity="0.7"/>
+  <line x1="15" y1="12" x2="24" y2="12" stroke="white" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="12" cy="12" r="2" stroke="white" stroke-width="1.2" opacity="0.9"/>
+</svg>
+<div id="cursor-h"></div>
+<div id="cursor-v"></div>
+
+
+<nav id="nav">
+  <a href="#" class="nav-logo">Entnomic</a>
+  <div class="nav-right">
+    <a href="#about" class="nav-link">About</a>
+    <a href="#tools" class="nav-link">Tools</a>
+    <a href="#contact" class="nav-link">Contact</a>
+    <div class="nav-badge">
+      <div class="badge-dot"></div>
+      Available
     </div>
+  </div>
+</nav>
 
 
-      
+<div class="hero">
+  <p class="hero-label">Software Engineer &amp; Cybersecurity Professional &amp; UI/UX Designer </p>
+  <h1 class="hero-heading">
+    Three disciplines.<br>
+    <span class="dim">One standard.</span>
+  </h1>
+  <p class="hero-sub">
+    Full-stack developer and cybersecurity professional. I build clean tools, design interfaces that respect the user, and know how systems fail from the inside out.
+  </p>
+  <div class="hero-actions">
+  </div>
+</div>
 
-    <section class="experiences">
-        <h3 class="section-title">My Experiences</h3>
-        <div class="experience-panel">
-            <h4>Programming Languages</h4>
-            <p>Proficient in 9+ languages: HTML, CSS, Python, JavaScript, Java, C#, C++, Lua, XML, PHP, and Ruby. Developed projects across web, desktop, applications, and game development platforms.</p>
-            <h4>Cybersecurity</h4>
-            <p>Extensive knowledge in cybersecurity: from creating tools and social engineering (SET) to executing rainbow table attacks, bot development, networking, creating executors, and penetration testing,.</p>
-            <h4>UI/UX Design</h4>
-            <p>Experienced in making modern, clean, user-friendly interfaces with a focus on accessibility and engagement across various applications.</p>
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item">Python</span>
+    <span class="ticker-item">JavaScript</span>
+    <span class="ticker-item">C#</span>
+    <span class="ticker-item">C++</span>
+    <span class="ticker-item">Java</span>
+    <span class="ticker-item">Lua</span>
+    <span class="ticker-item">PHP</span>
+    <span class="ticker-item">Ruby</span>
+    <span class="ticker-item">HTML / CSS</span>
+    <span class="ticker-item">Penetration Testing</span>
+    <span class="ticker-item">Reverse Engineering</span>
+    <span class="ticker-item">Network Analysis</span>
+    <span class="ticker-item">UI / UX Design</span>
+    <span class="ticker-item">Full-Stack Dev</span>
+    <span class="ticker-item">Python</span>
+    <span class="ticker-item">JavaScript</span>
+    <span class="ticker-item">C#</span>
+    <span class="ticker-item">C++</span>
+    <span class="ticker-item">Java</span>
+    <span class="ticker-item">Lua</span>
+    <span class="ticker-item">PHP</span>
+    <span class="ticker-item">Ruby</span>
+    <span class="ticker-item">HTML / CSS</span>
+    <span class="ticker-item">Penetration Testing</span>
+    <span class="ticker-item">Reverse Engineering</span>
+    <span class="ticker-item">Network Analysis</span>
+    <span class="ticker-item">UI / UX Design</span>
+    <span class="ticker-item">Full-Stack Dev</span>
+  </div>
+</div>
+
+
+<section class="section" id="about">
+  <div class="container">
+    <p class="section-label reveal">About</p>
+    <div class="about-grid">
+      <div class="reveal d1">
+        <p class="about-copy">
+          I'm a <strong>programmer, UI/UX designer, and software engineer</strong> with deep experience in cybersecurity — spanning offensive tooling, social engineering, network analysis, and penetration testing.
+        </p>
+        <p class="about-copy" style="margin-top:16px;">
+          On the software side I build across web, desktop, and CLI. I care about clean architecture and interfaces that don't get in the way.
+        </p>
+        <div class="tag-list">
+          <span class="tag">Python</span>
+          <span class="tag">JavaScript</span>
+          <span class="tag">C#</span>
+          <span class="tag">C++</span>
+          <span class="tag">Java</span>
+          <span class="tag">Lua</span>
+          <span class="tag">PHP</span>
+          <span class="tag">Ruby</span>
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
         </div>
-    </section>
-    
-    <style>
-    .experiences {
-        background: #2c0e0e;
-        border-radius: 15px;
-        margin-top: 30px;
-        padding: 30px;
-        width: 100%;
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        text-align: center;
-    }
-    .section-title {
-        font-size: 4.0em;
-        margin-bottom: 60px;
-        color: #c0392b;
-        text-align: center;
-    }
-    .experience-panel {
-        padding: 60px;
-        border-radius: 15px;
-        background: #4a1d1d;
-        border: 2px solid #c0392b;
-        margin: auto;
-        max-width: 1800px;
-        text-align: left;
-    }
-    .experience-panel h4 {
-        color: #e74c3c;
-        margin-top: 30px;
-        font-size: 2em;
-    }
-    .experience-panel p {
-        margin-bottom: 30px;
-        font-size: 2.0em;
-    }
-    </style>
-    
-    <style>
-        /* Full-width space background */
-        .discord-section {
-            background: url('https://media.tenor.com/18SBZln9s3AAAAAC/black-space-outer-space.gif') no-repeat center center fixed;
-            background-size: cover;
-            padding: 50px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Full screen height */
-        }
-    
-        /* Glassy transparent panel */
-        .discord-profile {
-            background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: #fff;
-            text-align: center;
-            padding: 60px;
-            max-width: 800px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-        }
-    
-        .discord-profile img {
-            border-radius: 50%;
-            width: 150px;
-            height: 150px;
-            margin-bottom: 30px;
-        }
-    
-        .discord-profile h4 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #7289da;
-        }
-    
-        .discord-profile p {
-            font-size: 2em;
-            margin-bottom: 30x;
-        }
-    
-        .discord-profile a {
-            color: #7289da;
-            font-size: 2em;
-            text-decoration: none;
-        }
-    
-        .discord-profile a:hover {
-            text-decoration: underline;
-
-
-
-    }
-        
-
-    </style>
-    
-    <div class="discord-section">
-        <div class="discord-profile">
-            <img src="https://cdn.discordapp.com/avatars/867384164214243338/a_9040d626316e1f64cfaed8833fe8dea7.gif?size=1024&width=638&height=638" alt="Discord Profile Picture">
-            <h4>@Entnomic1</h4>
-            <p>My Discord profile for connection and chats.</p>
-            <a href="https://discord.com/users/867384164214243338" target="_blank">Visit Profile</a>
+      </div>
+      <div class="reveal d2">
+        <div class="exp-list">
+          <div class="exp-row">
+            <span class="exp-name">Cybersecurity &amp; Pentesting</span>
+            <span class="exp-type">Offensive / Defensive</span>
+          </div>
+          <div class="exp-row">
+            <span class="exp-name">Full-Stack Development</span>
+            <span class="exp-type">Web + Desktop</span>
+          </div>
+          <div class="exp-row">
+            <span class="exp-name">UI / UX Design</span>
+            <span class="exp-type">Figma + Code</span>
+          </div>
+          <div class="exp-row">
+            <span class="exp-name">Reverse Engineering</span>
+            <span class="exp-type">.NET / Binary</span>
+          </div>
+          <div class="exp-row">
+            <span class="exp-name">Network &amp; Protocol Analysis</span>
+            <span class="exp-type">Wireshark / Traffic</span>
+          </div>
+          <div class="exp-row">
+            <span class="exp-name">Bot &amp; Automation Dev</span>
+            <span class="exp-type">Scripting / Tooling</span>
+          </div>
         </div>
+      </div>
     </div>
-
-    <!-- Tools Section -->
-<section class="tools">
-    <h3 class="section-title">Tools & Applications I Use</h3>
-    <div class="tools-list">
-        <!-- Visual Studio Code and Python -->
-        <div class="tool">
-            <h4>Visual Studio Code</h4>
-            <img src="https://logospng.org/download/visual-studio-code/visual-studio-code-4096.png" alt="Visual Studio Code" class="tool-image">
-            <p>A popular code editor with rich extensions for various programming languages. <a href="https://code.visualstudio.com/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>Python</h4>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="Python" class="tool-image">
-            <p>A powerful, high-level programming language used for everything from web development to AI. <a href="https://www.python.org/" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <!-- Discord and ILSpy -->
-        <div class="tool">
-            <h4>Discord</h4>
-            <img src="https://static.vecteezy.com/system/resources/previews/018/930/604/original/discord-logo-discord-icon-transparent-free-png.png" alt="Discord" class="tool-image">
-            <p>A platform for communication through voice, video, and text, perfect for community building. <a href="https://discord.com/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>ILSpy</h4>
-            <img src="https://img.ddooo.com/logo/20240528/af5ec0cd36445381572ae6f979c41040.png" alt="ILSpy" class="tool-image">
-            <p>An open-source .NET assembly decompiler, used to inspect and analyze compiled code. <a href="https://github.com/icsharpcode/ILSpy" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <!-- Notion and Visual Studio 2022 -->
-        <div class="tool">
-            <h4>Notion</h4>
-            <img src="https://logos-download.com/wp-content/uploads/2019/06/Notion_App_Logo.png" alt="Notion" class="tool-image">
-            <p>A workspace for your notes, tasks, wikis, and databases. <a href="https://www.notion.so/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>Visual Studio 2022</h4>
-            <img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2022/06/Visual-Studio-2022-for-Mac-Logo-1024x1024.png" alt="Visual Studio 2022" class="tool-image">
-            <p>A comprehensive IDE for creating powerful apps for Windows, web, mobile, and cloud. <a href="https://visualstudio.microsoft.com/vs/" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <!-- Wireshark and System Informer -->
-        <div class="tool">
-            <h4>Wireshark</h4>
-            <img src="https://pics.computerbase.de/9/2/1/2/5/logo-256.png" alt="Wireshark" class="tool-image">
-            <p>A network protocol analyzer that lets you capture and interactively browse traffic running on a computer network. <a href="https://www.wireshark.org/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>System Informer</h4>
-            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEja7auFyDQuQXRIdVTWZGpfLuBVV3wWV8gi4NGf6nPMRFgXgH_r7bwZnvT17n7Ow32JI0hMVDR6EvASK7TVegYoUmRQYysiWRq0Y3JAn9vmxscaTmWncKD5BOGg5nmcsnz3Q1FOkNF_QR9v8AWgcr9XvjINNPilg4UYOvlZnmu_pfkbSuZGAClqH9QQ=w0" alt="System Informer" class="tool-image">
-            <p>A system info tool to gather detailed information about your hardware and software. <a href="https://github.com/hexaclock/system-informer" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <!-- Spyder 6 and Black Arch Linux -->
-        <div class="tool">
-            <h4>Spyder 6</h4>
-            <img src="https://numfocus.org/wp-content/uploads/2022/12/spyder-logomark-background300x300-150x150.png" alt="Spyder" class="tool-image">
-            <p>An IDE for scientific programming in Python, commonly used in data science and research. <a href="https://www.spyder-ide.org/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>Black Arch Linux</h4>
-            <img src="https://logodix.com/logo/647479.png" alt="Black Arch Linux" class="tool-image">
-            <p>A penetration testing distribution based on Arch Linux, with over 200 security tools. <a href="https://blackarch.org/" target="_blank">Visit Website</a></p>
-        </div>
-
-        <!-- Metasploit and Figma -->
-        <div class="tool">
-            <h4>Metasploit</h4>
-            <img src="https://th.bing.com/th/id/OIP.EcHTdia8lv2N7XudakdFNwAAAA?w=400&h=470&rs=1&pid=ImgDetMain" alt="Metasploit" class="tool-image">
-            <p>A powerful framework for penetration testing and developing security tools. <a href="https://www.metasploit.com/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>Figma</h4>
-            <img src="https://www.pngall.com/wp-content/uploads/13/Figma-Logo-PNG-Cutout.png" alt="Figma" class="tool-image">
-            <p>A collaborative interface design tool used for UI/UX design. <a href="https://www.figma.com/" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <!-- Additional UI/UX and Cybersecurity Tools -->
-        <div class="tool">
-            <h4>Burp Suite</h4>
-            <img src="https://blog.fabiopires.pt/images/collaborator/burp-logo.png" alt="Burp Suite" class="tool-image">
-            <p>A powerful suite of tools for web security testing, including scanning and vulnerability analysis. <a href="https://portswigger.net/burp" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>Adobe XD</h4>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Adobe_XD_CC_icon.svg/1200px-Adobe_XD_CC_icon.svg.png" alt="Adobe XD" class="tool-image">
-            <p>A UX/UI design and prototyping tool for creating wireframes and high-fidelity designs. <a href="https://www.adobe.com/products/xd.html" target="_blank">Visit Website</a></p>
-        </div>
-        
-        <div class="tool">
-            <h4>Sketch</h4>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/32/Sketch_Logo.svg" alt="Sketch" class="tool-image">
-            <p>A vector-based design tool mainly used for UI/UX and web design. <a href="https://www.sketch.com/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>InVision</h4>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/02/InVision_Logo.svg" alt="InVision" class="tool-image">
-            <p>A digital product design platform for prototyping and collaboration. <a href="https://www.invisionapp.com/" target="_blank">Visit Website</a></p>
-        </div>
-
-        <!-- GitHub and IntelliJ IDEA -->
-        <div class="tool">
-            <h4>GitHub</h4>
-            <img src="https://www.pngall.com/wp-content/uploads/13/Github-Logo.png" alt="GitHub" class="tool-image">
-            <p>A platform for version control and collaboration, helping developers work together on projects. <a href="https://github.com/" target="_blank">Visit Website</a></p>
-        </div>
-        <div class="tool">
-            <h4>JetBrains IntelliJ IDEA</h4>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/IntelliJ_IDEA_Logo.png" alt="IntelliJ IDEA" class="tool-image">
-            <p>An IDE for Java development, but also supports many other languages. <a href="https://www.jetbrains.com/idea/" target="_blank">Visit Website</a></p>
-        </div>
-    </div>
+  </div>
 </section>
 
-    
-    
+
+<section class="section" id="tools">
+  <div class="container">
+    <p class="section-label reveal">Tools</p>
+    <div class="tools-grid reveal d1">
+      <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M17 2L3 9l4 3-4 3 14 7V2z" fill="#f0f0f0"/><path d="M17 2v20l-4-3.5V5.5L17 2z" fill="#888"/></svg></div>
+        <div class="tool-name">VS Code</div><div class="tool-type">Editor</div>
+      </a>
+      <a href="https://visualstudio.microsoft.com" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7.5L12 3l8 4.5v9L12 21l-8-4.5v-9z" stroke="#f0f0f0" stroke-width="1.5"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5" stroke="#888" stroke-width="1"/></svg></div>
+        <div class="tool-name">Visual Studio 2022</div><div class="tool-type">IDE</div>
+      </a>
+      <a href="https://www.python.org" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2C9 2 7 3.5 7 5.5V8h5v1H5.5C3.5 9 2 10.5 2 13s1.5 4 3.5 4H7v-2.5C7 12.5 8.5 11 10.5 11h3C15 11 16 10 16 8.5v-3C16 3.5 14.5 2 12 2z" fill="#f0f0f0"/><path d="M12 22c3 0 5-1.5 5-3.5V16h-5v-1h6.5c2 0 3.5-1.5 3.5-4s-1.5-4-3.5-4H17v2.5C17 11.5 15.5 13 13.5 13h-3C9 13 8 14 8 15.5v3C8 20.5 9.5 22 12 22z" fill="#888"/></svg></div>
+        <div class="tool-name">Python</div><div class="tool-type">Language</div>
+      </a>
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="#f0f0f0"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0112 6.84c.85 0 1.71.11 2.51.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.02 10.02 0 0022 12c0-5.52-4.48-10-10-10z"/></svg></div>
+        <div class="tool-name">GitHub</div><div class="tool-type">Version Control</div>
+      </a>
+      <a href="https://www.wireshark.org" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#f0f0f0" stroke-width="1.5"/><path d="M3 12h18M12 3c-3 3-3 9 0 12M12 3c3 3 3 9 0 12" stroke="#888" stroke-width="1"/></svg></div>
+        <div class="tool-name">Wireshark</div><div class="tool-type">Network Analysis</div>
+      </a>
+      <a href="https://portswigger.net/burp" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3L21 8V16L12 21L3 16V8L12 3Z" stroke="#f0f0f0" stroke-width="1.5"/><path d="M12 3v18M3 8l9 4.5 9-4.5" stroke="#888" stroke-width="1"/></svg></div>
+        <div class="tool-name">Burp Suite</div><div class="tool-type">Web Security</div>
+      </a>
+      <a href="https://www.metasploit.com" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4L20 18H4L12 4Z" stroke="#f0f0f0" stroke-width="1.5"/><path d="M12 8L17 18H7L12 8Z" stroke="#888" stroke-width="1"/></svg></div>
+        <div class="tool-name">Metasploit</div><div class="tool-type">Pentesting</div>
+      </a>
+      <a href="https://github.com/icsharpcode/ILSpy" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="#f0f0f0" stroke-width="1.5"/><path d="M15 15L20 20" stroke="#f0f0f0" stroke-width="1.5" stroke-linecap="round"/><path d="M7 10h6M10 7v6" stroke="#888" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <div class="tool-name">ILSpy</div><div class="tool-type">Decompiler</div>
+      </a>
+      <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="6" height="6" rx="1" fill="#f0f0f0"/><rect x="13" y="2" width="6" height="6" rx="1" fill="#888"/><rect x="5" y="9" width="6" height="6" rx="1" fill="#888"/><rect x="5" y="16" width="6" height="6" rx="1" fill="#f0f0f0" opacity="0.5"/><circle cx="16" cy="12" r="3" fill="#f0f0f0" opacity="0.7"/></svg></div>
+        <div class="tool-name">Figma</div><div class="tool-type">UI Design</div>
+      </a>
+      <a href="https://www.notion.so" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#f0f0f0" stroke-width="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#888" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <div class="tool-name">Notion</div><div class="tool-type">Workspace</div>
+      </a>
+      <a href="https://blackarch.org" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3L21 7.5V16.5L12 21L3 16.5V7.5L12 3Z" stroke="#f0f0f0" stroke-width="1.5"/></svg></div>
+        <div class="tool-name">BlackArch Linux</div><div class="tool-type">OS / Security</div>
+      </a>
+      <a href="https://discord.com/users/867384164214243338" target="_blank" rel="noopener noreferrer" class="tool-card">
+        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="#f0f0f0"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.055 19.972 19.972 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.201 13.201 0 01-1.872-.892.077.077 0 01-.008-.128c.12-.098.246-.198.372-.292a.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg></div>
+        <div class="tool-name">Discord</div><div class="tool-type">Communication</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="contact">
+  <div class="container">
+    <p class="section-label reveal">Contact</p>
+    <div class="contact-grid">
+      <div class="reveal d1">
+        <h2 class="contact-heading">Let's chat!</h2>
+        <p class="contact-sub" style="margin-top:14px;">I'm just a regular programmer who loves coding and collaborating on cool stuff. Feel free to reach out about projects, ideas, or just to say hi!</p>
+      </div>
+      <div class="contact-links reveal d2">
+        <a href="https://discord.com/users/1406417749042925599" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <div class="contact-link-left">
+            <div class="contact-link-icon"><svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.055 19.972 19.972 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.201 13.201 0 01-1.872-.892.077.077 0 01-.008-.128c.12-.098.246-.198.372-.292a.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg></div>
+            <div><div class="contact-link-name">Discord</div><div class="contact-link-handle">@Entnomic1</div></div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+        <a href="https://github.com/entnomic-cell" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <div class="contact-link-left">
+            <div class="contact-link-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0112 6.84c.85 0 1.71.11 2.51.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.02 10.02 0 0022 12c0-5.52-4.48-10-10-10z"/></svg></div>
+            <div><div class="contact-link-name">GitHub</div><div class="contact-link-handle">Open source work</div></div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<script>
+
+  const cur = document.getElementById('cursor');
+  const ch  = document.getElementById('cursor-h');
+  const cv  = document.getElementById('cursor-v');
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+    ch.style.top   = e.clientY + 'px';
+    cv.style.left  = e.clientX + 'px';
+  }, { passive: true });
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+
+  // Reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
